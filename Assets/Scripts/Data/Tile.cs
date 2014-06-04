@@ -1,4 +1,10 @@
 ﻿
+using Assets.Scripts.Data;
 public class Tile  {
-    public int type = 0;
+    public TileType Type {get;set;}
+    public Entity Entity { get; set; }
+
+    public Tile() {
+        this.Type = TileType.Unknown;
+    }
 }

@@ -9,7 +9,7 @@ using Random = UnityEngine.Random;
 public class Map {
     int m_sizeX;
     int m_sizeY;
-    public TileType[,] MapData;
+    public Tile[,] MapData;
     List<Room> m_rooms;
 
     public const int MaxNumOfRooms = 40;
@@ -28,7 +28,13 @@ public class Map {
         this.m_sizeY = sizeY;
         this.m_rooms = new List<Room>();
 
-        this.MapData = new TileType[this.m_sizeX, this.m_sizeY];
+        this.MapData = new Tile[this.m_sizeX, this.m_sizeY];
+        for ( var x = 0; x < this.m_sizeX; x++ ) {
+            for ( var y = 0; y < this.m_sizeY; y++ ) {
+                this.MapData[x, y] = new Tile();
+            }
+        }
+
         //this.BuildRooms();
         this.BuildDungeonLayout();
 
@@ -51,7 +57,7 @@ public class Map {
             var randomWall = this.FindWallInRoom(randRoom);
 
             //Ensure that it is actually a wall
-            if ( this.MapData[randomWall.First.X, randomWall.First.Y] != TileType.Wall  || !this.IsRandomWallValid(randomWall.First)) {
+            if ( this.MapData[randomWall.First.X, randomWall.First.Y].Type != TileType.Wall  || !this.IsRandomWallValid(randomWall.First)) {
                 retryCount++;
                 Debug.Log("Random Wall not valid");
                 continue;
@@ -71,7 +77,7 @@ public class Map {
             if ( this.IsRoomValid(room) ) {
                 Debug.Log(room.ToString());
 
-                this.MapData[randomWall.First.X, randomWall.First.Y] = TileType.Stone;
+                this.MapData[randomWall.First.X, randomWall.First.Y].Type = TileType.Stone;
                 this.TileRoom(room);
                 this.m_rooms.Add(room);
             } else {
@@ -108,12 +114,12 @@ public class Map {
 
     private bool IsRandomWallValid(Point p) {
         //Check east or west
-        if ( this.MapData[p.X + 1, p.Y] == TileType.Wall &&
-            this.MapData[p.X - 1, p.Y] == TileType.Wall )
+        if ( this.MapData[p.X + 1, p.Y].Type == TileType.Wall &&
+            this.MapData[p.X - 1, p.Y].Type == TileType.Wall )
             return true;
         //Check North or South
-        if ( this.MapData[p.X, p.Y + 1] == TileType.Wall &&
-            this.MapData[p.X, p.Y - 1] == TileType.Wall )
+        if ( this.MapData[p.X, p.Y + 1].Type == TileType.Wall &&
+            this.MapData[p.X, p.Y - 1].Type == TileType.Wall )
             return true;
         return false;
     }
@@ -122,7 +128,7 @@ public class Map {
 
         for ( var y = newRoom.Bottom; y < newRoom.Top; y++ ) {
             for ( var x = newRoom.Left; x < newRoom.Right; x++ ) {
-                if ( this.MapData[x, y] != TileType.Unknown && this.MapData[x, y] != TileType.Wall ) {
+                if ( this.MapData[x, y].Type != TileType.Unknown && this.MapData[x, y].Type != TileType.Wall ) {
                     Debug.Log("Failed at (" + x + "," + y + "), Tile type was " + MapData[x, y]);
                     return true;
                 }
@@ -180,12 +186,12 @@ public class Map {
         for ( var y = 0; y < room.Height; y++ ) {
             for ( var x = 0; x < room.Width; x++ ) {
                 if ( //m_mapData[x + room.Left, y + room.Bottom] == TileType.Floor ||
-                    MapData[x + room.Left, y + room.Bottom] == TileType.Stone ) {
+                    MapData[x + room.Left, y + room.Bottom].Type == TileType.Stone ) {
                     continue;
                 } else if ( x == 0 || x == room.Width - 1 || y == 0 || y == room.Height - 1 ) {
-                    this.MapData[x + room.Left, y + room.Bottom] = TileType.Wall;
+                    this.MapData[x + room.Left, y + room.Bottom].Type = TileType.Wall;
                 } else {
-                    this.MapData[x + room.Left, y + room.Bottom] = TileType.Floor;
+                    this.MapData[x + room.Left, y + room.Bottom].Type = TileType.Floor;
                 }
             }
         }
@@ -193,6 +199,6 @@ public class Map {
 
 
     public TileType GetTileData(int x, int y) {
-        return this.MapData[x, y];
+        return this.MapData[x, y].Type;
     }
 }
