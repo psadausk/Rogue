@@ -6,9 +6,10 @@ using System.Linq;
 using System.Drawing;
 using System;
 using Random = UnityEngine.Random;
+using Assets.Scripts.Data.Entities;
 public class Map {
-    int m_sizeX;
-    int m_sizeY;
+    public int m_sizeX;
+    public int m_sizeY;
     public Tile[,] MapData;
     List<Room> m_rooms;
 
@@ -35,18 +36,18 @@ public class Map {
             }
         }
 
-        //this.BuildRooms();
         this.BuildDungeonLayout();
+        this.PlacePlayer();
 
     }
 
+    #region Dungeon building
     private void BuildDungeonLayout() {
         //Build a room at a randomlocation
         var size = Random.Range(MinRoomSize, MaxRoomSize);
         var top = Random.Range(0, m_sizeX - size);
         var left = Random.Range(0, m_sizeY - size);
         var room = new Room(top, left, size, size);
-        Debug.Log(room.ToString());
         this.m_rooms.Add(room);
         this.TileRoom(room);
         while ( this.m_rooms.Count < MaxNumOfRooms && retryCount < MaxNumOfRetries ) {
@@ -57,13 +58,12 @@ public class Map {
             var randomWall = this.FindWallInRoom(randRoom);
 
             //Ensure that it is actually a wall
-            if ( this.MapData[randomWall.First.X, randomWall.First.Y].Type != TileType.Wall  || !this.IsRandomWallValid(randomWall.First)) {
+            if ( this.MapData[randomWall.First.X, randomWall.First.Y].Type != TileType.Wall || !this.IsRandomWallValid(randomWall.First) ) {
                 retryCount++;
-                Debug.Log("Random Wall not valid");
                 continue;
             }
 
-            
+
 
             //Weight the probability of a wall slightly higher
             var rand = Random.Range(0, 9);
@@ -75,7 +75,7 @@ public class Map {
                 room = this.BuildCorridor(randomWall.First, Random.Range(MinCorridorLength, MaxCorridorLength), randomWall.Second);
             }
             if ( this.IsRoomValid(room) ) {
-                Debug.Log(room.ToString());
+                //Debug.Log(room.ToString());
 
                 this.MapData[randomWall.First.X, randomWall.First.Y].Type = TileType.Stone;
                 this.TileRoom(room);
@@ -84,7 +84,7 @@ public class Map {
                 retryCount++;
             }
         }
-        Debug.Log(retryCount);
+        //Debug.Log(retryCount);
     }
 
     private Tuple<Point, Direction> FindWallInRoom(Room room) {
@@ -129,11 +129,11 @@ public class Map {
         for ( var y = newRoom.Bottom; y < newRoom.Top; y++ ) {
             for ( var x = newRoom.Left; x < newRoom.Right; x++ ) {
                 if ( this.MapData[x, y].Type != TileType.Unknown && this.MapData[x, y].Type != TileType.Wall ) {
-                    Debug.Log("Failed at (" + x + "," + y + "), Tile type was " + MapData[x, y]);
+                    //Debug.Log("Failed at (" + x + "," + y + "), Tile type was " + MapData[x, y]);
                     return true;
                 }
             }
-        }        
+        }
         return false;
     }
 
@@ -197,8 +197,29 @@ public class Map {
         }
     }
 
+    public Point FindRandomPosition() {
+        var room = this.m_rooms[Random.Range(0, this.m_rooms.Count)];
+        var randX = Random.Range(room.Left + 1, room.Right - 1);
+        var randY = Random.Range(room.Bottom + 1, room.Top - 1);
+
+        return new Point(randX, randY);
+    }
+    #endregion
+
+    #region Entity Placement
+    private void PlacePlayer() {
+        var p = this.FindRandomPosition();
+        Debug.Log(p);
+        this.MapData[p.X, p.Y].Entity = new Player(p.X, p.Y);            
+    }
+    #endregion
+
 
     public TileType GetTileData(int x, int y) {
         return this.MapData[x, y].Type;
+    }
+
+    public EntityType GetEntityData(int x, int y) {
+        return this.MapData[x, y].Entity.EntityType;
     }
 }

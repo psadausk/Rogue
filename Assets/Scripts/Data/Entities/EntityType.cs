@@ -5,6 +5,7 @@ using System.Text;
 
 namespace Assets.Scripts.Data {
     public enum EntityType {
+        None,
         Player
     }
 }
