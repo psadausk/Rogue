@@ -128,5 +128,14 @@ namespace Assets.Scripts.Graphics {
             var meshRender = GetComponent<MeshRenderer>();
             meshRender.sharedMaterials[0].mainTexture = texture;
         }
+
+        public void UpdateEntity(Entity entity, int x, int y) {
+            var oldPos = entity.Position;
+            var meshRender = this.GetComponent<MeshRenderer>();
+            var texture = meshRender.sharedMaterials[0].mainTexture as Texture2D;
+            texture.SetPixels(oldPos.X * this.TileResolution, oldPos.Y * this.TileResolution, this.TileResolution, this.TileResolution, this.ChoppedTextures[(int)EntityType.None]);
+            texture.SetPixels(x * this.TileResolution, y * this.TileResolution, this.TileResolution, this.TileResolution, this.ChoppedTextures[(int)EntityType.Player]);
+            texture.Apply();
+        }
     }
 }

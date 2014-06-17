@@ -15,18 +15,18 @@ public class PlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         Direction? direction = null;
-        if ( Input.GetKey(KeyCode.W) ) {
+        if ( Input.GetKeyUp(KeyCode.W) ) {
             direction = Direction.North;
-        } else if ( Input.GetKey(KeyCode.A) ) {
+        } else if ( Input.GetKeyUp(KeyCode.A) ) {
             direction = Direction.West;
-        } else if ( Input.GetKey(KeyCode.S) ) {
+        } else if ( Input.GetKeyUp(KeyCode.S) ) {
             direction = Direction.South;
-        } else if ( Input.GetKey(KeyCode.D) ) {
+        } else if ( Input.GetKeyUp(KeyCode.D) ) {
             direction = Direction.East;
         }
 
         if ( direction.HasValue ) {
-
+            this.m_controller.UpdatePlayerPosition(direction.Value);
         }
 
 	}

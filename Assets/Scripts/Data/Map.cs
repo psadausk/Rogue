@@ -11,6 +11,7 @@ public class Map {
     public int m_sizeX;
     public int m_sizeY;
     public Tile[,] MapData;
+    public List<Entity> Entities;
     List<Room> m_rooms;
 
     public const int MaxNumOfRooms = 40;
@@ -28,6 +29,7 @@ public class Map {
         this.m_sizeX = sizeX;
         this.m_sizeY = sizeY;
         this.m_rooms = new List<Room>();
+        this.Entities = new List<Entity>();
 
         this.MapData = new Tile[this.m_sizeX, this.m_sizeY];
         for ( var x = 0; x < this.m_sizeX; x++ ) {
@@ -209,8 +211,9 @@ public class Map {
     #region Entity Placement
     private void PlacePlayer() {
         var p = this.FindRandomPosition();
-        Debug.Log(p);
-        this.MapData[p.X, p.Y].Entity = new Player(p.X, p.Y);            
+        var player = new Player(p.X, p.Y);
+        this.MapData[p.X, p.Y].Entity = player;
+        this.Entities.Add(player);
     }
     #endregion
 
@@ -221,5 +224,11 @@ public class Map {
 
     public EntityType GetEntityData(int x, int y) {
         return this.MapData[x, y].Entity.EntityType;
+    }
+
+    public void UpdateEntity(Entity entity, int x, int y) {
+        var oldPos = entity.Position;
+        this.MapData[oldPos.X, oldPos.Y].Entity = null;
+        this.MapData[x, y].Entity = entity;
     }
 }

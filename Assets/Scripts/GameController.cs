@@ -31,20 +31,15 @@ public class GameController : MonoBehaviour {
         var playerPos = m_player.Position;
         var newPos = DirectionUtility.GetPoint(d, playerPos);
 
-        if ( this.m_map.GetTileData(playerPos.X, playerPos.Y) == TileType.Floor ) {
-            this.m_tileMap.UpdateEntity(this.m_player, newPos.X, newPos.Y);
+        if ( this.m_map.GetTileData(newPos.X, newPos.Y) == TileType.Floor || this.m_map.GetTileData(newPos.X, newPos.Y) == TileType.Stone ) {
+            this.m_map.UpdateEntity(this.m_player, newPos.X, newPos.Y);
+            this.m_entityMap.UpdateEntity(this.m_player, newPos.X, newPos.Y);
+            this.m_player.Position = newPos;
         }
+        
         //this.m_tileMap.UpdateEntity(this.m_player)
     }
 
-    private void SpawnPlayer() {
-        var startPos = this.m_map.FindRandomPosition();
-
-        this.m_player = new Player(startPos.X, startPos.Y);
-        this.m_tileMap.UpdateEntity(this.m_player, startPos.X, startPos.Y);
-        Debug.Log("Player created at (" + startPos.ToString());
-
-    }
 
     //Global functions to reset the state of the game
     public void ResetGame() {
@@ -73,5 +68,7 @@ public class GameController : MonoBehaviour {
 
     public void ResetEntities() {
         this.m_entityMap.BuildMesh(this.m_map);
+        this.m_player = this.m_map.Entities[0];
+
     }
 }
