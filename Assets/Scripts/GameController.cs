@@ -9,7 +9,7 @@ using Assets.Scripts.Graphics;
 public class GameController : MonoBehaviour {
     public int SizeX;
     public int SizeY;
-
+    public int TileSize;
 
     private TileMap m_tileMap;
     private EntityMap m_entityMap;
@@ -30,14 +30,13 @@ public class GameController : MonoBehaviour {
         //Get the current player position
         var playerPos = m_player.Position;
         var newPos = DirectionUtility.GetPoint(d, playerPos);
-
+        Debug.Log(newPos);
         if ( this.m_map.GetTileData(newPos.X, newPos.Y) == TileType.Floor || this.m_map.GetTileData(newPos.X, newPos.Y) == TileType.Stone ) {
             this.m_map.UpdateEntity(this.m_player, newPos.X, newPos.Y);
             this.m_entityMap.UpdateEntity(this.m_player, newPos.X, newPos.Y);
             this.m_player.Position = newPos;
-        }
-        
-        //this.m_tileMap.UpdateEntity(this.m_player)
+            Camera.main.transform.position = new Vector3(newPos.X * TileSize, 10, (SizeY - newPos.Y) * -TileSize);
+        }        
     }
 
 
