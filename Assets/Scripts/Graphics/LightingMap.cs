@@ -1,21 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Assets.Scripts.Data;
+using Point = System.Drawing.Point;
+using System.Collections.Generic;
 
 namespace Assets.Scripts.Graphics {
     [RequireComponent(typeof(MeshFilter))]
     [RequireComponent(typeof(MeshRenderer))]
     [RequireComponent(typeof(MeshCollider))]
-    public class EntityMap : MonoBehaviour {
+    public class LightingMap : MonoBehaviour {
 
         private int m_sizeX;
         private int m_sizeY;
-        private int m_tileSize = 5;
-        private int m_tileResolution = 16;
-
+        private int m_tileSize;
+        private int m_tileResolution;
         private Color[][] ChoppedTextures;
 
-        public Texture2D EntityTiles;        
+        public Texture2D EntityTiles;
+
 
         // Use this for initialization
         void Start() { }
@@ -42,6 +44,7 @@ namespace Assets.Scripts.Graphics {
             this.m_sizeY = map.m_sizeY;
             this.m_tileSize = tileSize;
             this.m_tileResolution = tileResolution;
+
 
             var numTiles = this.m_sizeX * this.m_sizeY;
             var numTri = numTiles * 2;
@@ -88,7 +91,6 @@ namespace Assets.Scripts.Graphics {
                 uv = uv
             };
 
-
             var meshFilter = GetComponent<MeshFilter>();
             var meshRender = GetComponent<MeshRenderer>();
             var meshCollider = GetComponent<MeshCollider>();
@@ -100,19 +102,15 @@ namespace Assets.Scripts.Graphics {
         }
 
         void BuildTexture(Map map) {
-
             this.ChoppedTextures = this.ChopUpTiles();
             var textureWidth = this.m_sizeX * this.m_tileResolution;
             var textureHeight = this.m_sizeY * this.m_tileResolution;
             var texture = new Texture2D(textureWidth, textureHeight);
             for ( var y = 0; y < m_sizeY; y++ ) {
                 for ( var x = 0; x < m_sizeX; x++ ) {
-                    if ( map.MapData[x, y].Entity != null ) {
-                        Debug.Log("Placing entity");
-                        //var p = this.ChoppedTextures[(int)map.GetEntityData(x, y)];
-                        var p = this.ChoppedTextures[1];
-                        texture.SetPixels(x * this.m_tileResolution, y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution, p);
-                    }
+                    var p = this.ChoppedTextures[(int)map.MapData[x,y].Lighting];
+                    Debug.Log(map.MapData[x,y].Lighting);
+                    texture.SetPixels(x * this.m_tileResolution, y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution, p);
                 }
             }
             texture.filterMode = FilterMode.Point;
@@ -123,13 +121,13 @@ namespace Assets.Scripts.Graphics {
             meshRender.sharedMaterials[0].mainTexture = texture;
         }
 
-        public void UpdateEntity(Entity entity, int x, int y) {
-            var oldPos = entity.Position;
+        public void UpdateLighting(Lighting lighting, IEnumerable<Point> points) {
             var meshRender = this.GetComponent<MeshRenderer>();
             var texture = meshRender.sharedMaterials[0].mainTexture as Texture2D;
-            texture.SetPixels(oldPos.X * this.m_tileResolution, oldPos.Y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution, this.ChoppedTextures[(int)EntityType.None]);
-            texture.SetPixels(x * this.m_tileResolution, y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution, this.ChoppedTextures[(int)EntityType.Player]);
+            foreach ( var p in points ) {
+                texture.SetPixels(p.X * this.m_tileResolution, p.Y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution, this.ChoppedTextures[(int)lighting]);
+            }
             texture.Apply();
-        }        
+        }    
     }
 }

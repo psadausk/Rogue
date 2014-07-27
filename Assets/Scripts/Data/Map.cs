@@ -231,4 +231,57 @@ public class Map {
         this.MapData[oldPos.X, oldPos.Y].Entity = null;
         this.MapData[x, y].Entity = entity;
     }
+
+    /// <summary>
+    /// Returns a list of points 
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="distance"></param>
+    /// <returns></returns>
+    public IEnumerable<Point> GetNeighboringPoints(Point start, int distance) {
+        var ret = new List<Point>();
+
+        //Debug.Log("Start point is " + start.ToString());
+        ret.Add(start);
+
+        var startX = start.X - distance;
+
+        //Debug.Log("Start x is " + startX);
+        //Debug.Log("Ending at " + (startX + (2 * distance + 1)));
+        for ( var x = startX; x <= ( startX + ( 2 * distance + 1 ) ); x++ ) {
+            if ( x < 0 ) {
+                continue;
+            }
+            if ( x >= this.m_sizeX ) {
+                return ret;
+            }
+
+            var yStart = start.Y + ( distance - Math.Abs(x - start.X) );
+            var yEnd = yStart - ( 2 * ( yStart - start.Y ) );
+            for ( var y = yStart; y >= yEnd; y-- ) {
+                if ( y < 0 ) {
+                    break;
+                }
+                if ( y < this.m_sizeY ) {
+                    ret.Add(new Point(x, y));
+                }
+            }
+        }
+        return ret;
+    }
+
+    public void UpdateLighting(Point oldP, Point newP, int los) {
+
+        //TODO: Lots of duplication here.
+        var oldPoints = this.GetNeighboringPoints(oldP, los);
+        var newPoints = this.GetNeighboringPoints(newP, los);
+
+        foreach ( var oldPoint in oldPoints ) {
+            this.MapData[oldPoint.X, oldPoint.Y].Lighting = Lighting.NotVisible;
+        }
+
+        foreach ( var newPoint in newPoints ) {
+            this.MapData[newPoint.X, newPoint.Y].Lighting = Lighting.Visible;
+        }
+    }
 }

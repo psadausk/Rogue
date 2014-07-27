@@ -28,6 +28,5 @@ public class PlayerController : MonoBehaviour {
         if ( direction.HasValue ) {
             this.m_controller.UpdatePlayerPosition(direction.Value);
         }
-
 	}
 }

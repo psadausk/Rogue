@@ -9,44 +9,36 @@ public class TileMap : MonoBehaviour {
 
     private int m_sizeX;
     private int m_sizeY;
-    public int m_tileSize = 5;
-    //public Map Map;
+    private int m_tileSize = 5;
+    private int m_tileResolution = 16;
     
     private Color[][] ChoppedTextures;
 
-    public Texture2D MapTiles;
-    public int TileResolution = 16;
-
-	// Use this for initialization
-	void Start () {
-        //this.BuildMesh();        
-	}
+    public Texture2D MapTiles;    
 
     Color[][] ChopUpTiles() {
-        var textureWidth = this.m_sizeX * this.TileResolution;
-        var textureHeight = this.m_sizeY * this.TileResolution;
-        var numTilesPerRow = this.MapTiles.width/TileResolution;
-        var numRows = this.MapTiles.height / TileResolution;
+        var textureWidth = this.m_sizeX * this.m_tileResolution;
+        var textureHeight = this.m_sizeY * this.m_tileResolution;
+        var numTilesPerRow = this.MapTiles.width/m_tileResolution;
+        var numRows = this.MapTiles.height / m_tileResolution;
         var tiles = new Color[numTilesPerRow * numRows][];
         Debug.Log(numTilesPerRow);
         Debug.Log(numRows);
         for ( var y = 0; y < numRows; y++ ) {
             for ( var x = 0; x < numTilesPerRow; x++ ) {
-                tiles[y * numTilesPerRow + x] = this.MapTiles.GetPixels(x * this.TileResolution, y * this.TileResolution, this.TileResolution, this.TileResolution);
+                tiles[y * numTilesPerRow + x] = this.MapTiles.GetPixels(x * this.m_tileResolution, y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution);
             }
         }
         return tiles;
     }
 	
 
-    public void BuildMesh(Map map) {
-
-
+    public void BuildMesh(Map map, int tileSize, int tileResolution) {
         this.m_sizeX = map.m_sizeX;
         this.m_sizeY = map.m_sizeY;
+        this.m_tileSize = tileSize;
+        this.m_tileResolution = tileResolution;
 
-
-        Debug.Log("Size x = " + this.m_sizeX);
         //this.EntityTextures = new Texture2D(this.m_sizeX * TileResolution, this.m_sizeY * TileResolution);
 
         var numTiles = this.m_sizeX * this.m_sizeY;
@@ -94,7 +86,6 @@ public class TileMap : MonoBehaviour {
             uv = uv
         };
 
-
         var meshFilter = GetComponent<MeshFilter>();
         var meshRender = GetComponent<MeshRenderer>();
         var meshCollider = GetComponent<MeshCollider>();
@@ -106,16 +97,14 @@ public class TileMap : MonoBehaviour {
     }
 
     void BuildTexture(Map map) {
-
-        //this.Map = new Map(m_sizeX, m_sizeY);
         this.ChoppedTextures = this.ChopUpTiles();
-        var textureWidth = this.m_sizeX * this.TileResolution;
-        var textureHeight = this.m_sizeY * this.TileResolution;
+        var textureWidth = this.m_sizeX * this.m_tileResolution;
+        var textureHeight = this.m_sizeY * this.m_tileResolution;
         var texture = new Texture2D(textureWidth, textureHeight);
         for ( var y = 0; y < m_sizeY; y++ ) {
             for ( var x = 0; x < m_sizeX; x++ ) {
                 var p = this.ChoppedTextures[(int)map.GetTileData(x,y) ];
-                texture.SetPixels(x * this.TileResolution, y * this.TileResolution, this.TileResolution, this.TileResolution, p);
+                texture.SetPixels(x * this.m_tileResolution, y * this.m_tileResolution, this.m_tileResolution, this.m_tileResolution, p);
             }
         }
         texture.filterMode = FilterMode.Point;
